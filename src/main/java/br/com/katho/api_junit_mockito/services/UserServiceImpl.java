@@ -1,6 +1,7 @@
 package br.com.katho.api_junit_mockito.services;
 
-import br.com.katho.api_junit_mockito.domain.User;
+import br.com.katho.api_junit_mockito.domain.UserEntity;
+import br.com.katho.api_junit_mockito.exceptions.ObjectNotFoundException;
 import br.com.katho.api_junit_mockito.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,8 +15,8 @@ public class UserServiceImpl implements UserService {
     private UserRepository repository;
 
     @Override
-    public User findById(Integer id) {
-        Optional<User> user = repository.findById(id);
-        return user.orElse(null);
+    public UserEntity findById(Integer id) {
+        Optional<UserEntity> user = repository.findById(id);
+        return user.orElseThrow(() -> new ObjectNotFoundException("Usuário não encontrado"));
     }
 }
