@@ -1,6 +1,5 @@
 package br.com.katho.api_junit_mockito.resource;
 
-import br.com.katho.api_junit_mockito.domain.UserEntity;
 import br.com.katho.api_junit_mockito.domain.dto.UserDTO;
 import br.com.katho.api_junit_mockito.services.UserService;
 import org.modelmapper.ModelMapper;
@@ -42,9 +41,17 @@ public class UserResource {
     }
 
     @PostMapping
-    public ResponseEntity<UserDTO> create(@RequestBody UserDTO user) {
+    public ResponseEntity<UserDTO> create(@RequestBody UserDTO dto) {
         URI uri = ServletUriComponentsBuilder
-                .fromCurrentRequest().path("/{id}").buildAndExpand(userService.create(user).getId()).toUri();
+                .fromCurrentRequest().path("/{id}").buildAndExpand(userService.create(dto).getId()).toUri();
         return ResponseEntity.created(uri).build();
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<UserDTO> update(@RequestBody UserDTO dto, @PathVariable Integer id) {
+        dto.setId(id);
+        return ResponseEntity.ok().body(
+                mapper.map(userService.update(dto), UserDTO.class)
+        );
     }
 }
