@@ -32,7 +32,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserEntity create(UserDTO user) {
-        return repository.save(mapper.map(user, UserEntity.class));
+    public UserEntity create(UserDTO dto) {
+        findByEmail(dto);
+        return repository.save(mapper.map(dto, UserEntity.class));
+    }
+
+    private void findByEmail(UserDTO dto) {
+        Optional<UserEntity> user = repository.findByEmail(dto.getEmail());
+        if (user.isPresent()) {
+            throw new ObjectNotFoundException("E-mail já cadastrado no sistema");
+        }
     }
 }
