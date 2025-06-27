@@ -11,4 +11,5 @@ public interface UserService {
     List<UserEntity> findAll();
     UserEntity create(UserDTO dto);
     UserEntity update(UserDTO dto);
+    void delete(Integer id);
 }
