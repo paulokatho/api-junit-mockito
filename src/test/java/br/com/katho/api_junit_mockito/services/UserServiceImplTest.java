@@ -29,6 +29,7 @@ class UserServiceImplTest {
     private static final String PASSWORD = "123";
     public static final String USUARIO_NAO_ENCONTRADO = "Usuário não encontrado";
     public static final String E_MAIL_JA_CADASTRADO_NO_SISTEMA = "E-mail já cadastrado no sistema";
+    public static final String OBJETO_NAO_ENCONTRADO = "Objeto não encontrado";
 
     @InjectMocks
     private UserServiceImpl service;
@@ -161,6 +162,19 @@ class UserServiceImplTest {
         service.delete(ID);
 
         Mockito.verify(repository, Mockito.times(1)).deleteById(Mockito.anyInt());
+    }
+
+    @Test
+    void deleteWithObjectNotFoundException() {
+        Mockito.when(repository.findById(Mockito.anyInt()))
+                .thenThrow(new ObjectNotFoundException(OBJETO_NAO_ENCONTRADO));
+
+       try {
+           service.delete(ID);
+       } catch (Exception e) {
+           Assertions.assertEquals(ObjectNotFoundException.class, e.getClass());
+            Assertions.assertEquals(OBJETO_NAO_ENCONTRADO, e.getMessage());
+       }
     }
 
     // Metodo que inicia os valores das constantes
