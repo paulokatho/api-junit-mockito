@@ -2,6 +2,7 @@ package br.com.katho.api_junit_mockito.services;
 
 import br.com.katho.api_junit_mockito.domain.UserEntity;
 import br.com.katho.api_junit_mockito.domain.dto.UserDTO;
+import br.com.katho.api_junit_mockito.exceptions.DataIntegratyViolationException;
 import br.com.katho.api_junit_mockito.exceptions.ObjectNotFoundException;
 import br.com.katho.api_junit_mockito.repository.UserRepository;
 import org.junit.jupiter.api.Assertions;
@@ -106,6 +107,21 @@ class UserServiceImplTest {
         Assertions.assertEquals(NAME, response.getName());
         Assertions.assertEquals(EMAIL, response.getEmail());
         Assertions.assertEquals(PASSWORD, response.getPassword());
+    }
+
+    @Test
+    void whenCreateThenReturnAnDataIntegrityViolationException() {
+        Mockito.when(repository.findByEmail(Mockito.anyString())).thenReturn(optionalUser);
+
+        UserEntity response = service.create(userDTO);
+
+        try {
+            optionalUser.get().setId(2);
+            service.create(userDTO);
+        } catch (Exception e) {
+            Assertions.assertEquals(DataIntegratyViolationException.class, e.getClass());
+            Assertions.assertEquals("E-mail já cadastrado no sistema", e.getMessage());
+        }
     }
 
     @Test
