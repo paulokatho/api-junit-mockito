@@ -28,6 +28,7 @@ class UserServiceImplTest {
     private static final String EMAIL    = "valdir@mail.com";
     private static final String PASSWORD = "123";
     public static final String USUARIO_NAO_ENCONTRADO = "Usuário não encontrado";
+    public static final String E_MAIL_JA_CADASTRADO_NO_SISTEMA = "E-mail já cadastrado no sistema";
 
     @InjectMocks
     private UserServiceImpl service;
@@ -120,7 +121,7 @@ class UserServiceImplTest {
             service.create(userDTO);
         } catch (Exception e) {
             Assertions.assertEquals(DataIntegratyViolationException.class, e.getClass());
-            Assertions.assertEquals("E-mail já cadastrado no sistema", e.getMessage());
+            Assertions.assertEquals(E_MAIL_JA_CADASTRADO_NO_SISTEMA, e.getMessage());
         }
     }
 
@@ -139,7 +140,27 @@ class UserServiceImplTest {
     }
 
     @Test
-    void delete() {
+    void whenUpdateThenReturnAnDataIntegrityViolationException() {
+        Mockito.when(repository.findByEmail(Mockito.anyString())).thenReturn(optionalUser);
+
+        UserEntity response = service.create(userDTO);
+
+        try {
+            optionalUser.get().setId(2);
+            service.create(userDTO);
+        } catch (Exception e) {
+            Assertions.assertEquals(DataIntegratyViolationException.class, e.getClass());
+            Assertions.assertEquals(E_MAIL_JA_CADASTRADO_NO_SISTEMA, e.getMessage());
+        }
+    }
+
+    @Test
+    void deleteWithSuccess() {
+        Mockito.when(repository.findById(Mockito.anyInt())).thenReturn(optionalUser);
+        Mockito.doNothing().when(repository).deleteById(Mockito.anyInt());
+        service.delete(ID);
+
+        Mockito.verify(repository, Mockito.times(1)).deleteById(Mockito.anyInt());
     }
 
     // Metodo que inicia os valores das constantes
