@@ -2,8 +2,8 @@ package br.com.katho.api_junit_mockito.services;
 
 import br.com.katho.api_junit_mockito.domain.UserEntity;
 import br.com.katho.api_junit_mockito.domain.dto.UserDTO;
+import br.com.katho.api_junit_mockito.exceptions.ObjectNotFoundException;
 import br.com.katho.api_junit_mockito.repository.UserRepository;
-import jakarta.validation.constraints.Email;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,10 +13,11 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.modelmapper.ModelMapper;
 
+import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+//import static org.junit.jupiter.api.Assertions.assertEquals;
+//import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class UserServiceImplTest {
 
@@ -25,6 +26,7 @@ class UserServiceImplTest {
     private static final String NAME     = "Valdir";
     private static final String EMAIL    = "valdir@mail.com";
     private static final String PASSWORD = "123";
+    public static final String USUARIO_NAO_ENCONTRADO = "Usuário não encontrado";
 
     @InjectMocks
     private UserServiceImpl service;
@@ -47,19 +49,49 @@ class UserServiceImplTest {
 
     @Test
     void whenFindByIdThenReturnAnUserInstance() {
+
+        // Mocka a resposta para não dar exceção
         Mockito.when(repository.findById(Mockito.anyInt())).thenReturn(optionalUser);
 
         UserEntity response = service.findById(ID);
 
-        assertNotNull(response);
-        assertEquals(UserEntity.class, response.getClass());
-        assertEquals(ID, response.getId());
-        assertEquals(NAME, response.getName());
-        assertEquals(EMAIL, response.getEmail());
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(UserEntity.class, response.getClass());
+        Assertions.assertEquals(ID, response.getId());
+        Assertions.assertEquals(NAME, response.getName());
+        Assertions.assertEquals(EMAIL, response.getEmail());
+    }
+
+    @Test
+    void whenFindByIdThenReturnAnObjectNotFoundException() {
+
+        // Mocka a resposta para não dar exceção
+        Mockito.when(repository.findById(
+                Mockito.anyInt()))
+                .thenThrow(new ObjectNotFoundException(USUARIO_NAO_ENCONTRADO));
+
+        try {
+            service.findById(ID);
+        } catch (Exception e) {
+            Assertions.assertEquals(ObjectNotFoundException.class, e.getClass());
+            Assertions.assertEquals(USUARIO_NAO_ENCONTRADO, e.getMessage());
+        }
     }
 
     @Test
     void findAll() {
+        Mockito.when(repository.findAll()).thenReturn(List.of(user));
+
+        List<UserEntity> response = service.findAll();
+
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(UserEntity.class, response.get(INDEX).getClass());
+        Assertions.assertEquals(1, response.size());
+
+        Assertions.assertEquals(ID, response.get(INDEX).getId());
+        Assertions.assertEquals(NAME, response.get(INDEX).getName());
+        Assertions.assertEquals(EMAIL,response.get(INDEX).getEmail());
+        Assertions.assertEquals(PASSWORD, response.get(INDEX).getPassword());
     }
 
     @Test
