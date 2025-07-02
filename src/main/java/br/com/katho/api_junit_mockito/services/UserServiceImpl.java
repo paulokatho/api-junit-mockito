@@ -2,6 +2,7 @@ package br.com.katho.api_junit_mockito.services;
 
 import br.com.katho.api_junit_mockito.domain.UserEntity;
 import br.com.katho.api_junit_mockito.domain.dto.UserDTO;
+import br.com.katho.api_junit_mockito.exceptions.DataIntegratyViolationException;
 import br.com.katho.api_junit_mockito.exceptions.ObjectNotFoundException;
 import br.com.katho.api_junit_mockito.repository.UserRepository;
 import org.modelmapper.ModelMapper;
@@ -52,7 +53,7 @@ public class UserServiceImpl implements UserService {
     private void findByEmail(UserDTO dto) {
         Optional<UserEntity> user = repository.findByEmail(dto.getEmail());
         if (user.isPresent() && !user.get().getId().equals(dto.getId())) {
-            throw new ObjectNotFoundException("E-mail já cadastrado no sistema");
+            throw new DataIntegratyViolationException("E-mail já cadastrado no sistema");
         }
     }
 }
